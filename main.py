@@ -8,7 +8,7 @@ load_dotenv()
 
 TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
 DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+TG_CHAT_ID = os.getenv("TG_CHAT_ID")
 bot = telegram.Bot(token=TG_BOT_TOKEN)
 url = 'https://dvmn.org/api/long_polling/'
 
@@ -36,7 +36,7 @@ def get_status(timestamp_to_request):
                     lesson_url = response.json()['new_attempts'][0]['lesson_url']
                     if is_negative:
                         bot.send_message(
-                            chat_id=CHAT_ID,
+                            chat_id=TG_CHAT_ID,
                             text=f'''У вас проверили работу «{lesson_title}».
 
                             К сожалению в работе нашлись ошибки.
@@ -45,7 +45,7 @@ def get_status(timestamp_to_request):
                         )
                     else:
                         bot.send_message(
-                            chat_id=CHAT_ID,
+                            chat_id=TG_CHAT_ID,
                             text=f'''У вас проверили работу «{lesson_title}».
 
                             Преподавателю всё понравилось, можно приступать к следующему уроку!
