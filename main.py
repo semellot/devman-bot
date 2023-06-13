@@ -6,10 +6,10 @@ import telegram
 
 load_dotenv()
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
 DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-bot = telegram.Bot(token=TELEGRAM_TOKEN)
+bot = telegram.Bot(token=TG_BOT_TOKEN)
 url = 'https://dvmn.org/api/long_polling/'
 
 headers = {
