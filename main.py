@@ -17,7 +17,6 @@ headers = {
 }
 response = requests.get(url, headers=headers)
 response.raise_for_status()
-print(response.json())
 timestamp_to_request = response.json()['new_attempts'][0]['timestamp']
 
 def get_status(timestamp_to_request):
@@ -27,7 +26,6 @@ def get_status(timestamp_to_request):
             response = requests.get(url, params=payload, headers=headers, timeout=190)
             response.raise_for_status()
             for message in response:
-                print(response.json())
                 if response.json()['status'] == 'timeout':
                     timestamp_to_request = response.json()['timestamp_to_request']
                 elif response.json()['status'] == 'found':
@@ -53,12 +51,9 @@ def get_status(timestamp_to_request):
                             '''
                         )
                     timestamp_to_request = response.json()['last_attempt_timestamp']
-                print(timestamp_to_request)
     except requests.exceptions.ReadTimeout:
-        print('ReadTimeout')
         get_status(timestamp_to_request)
     except requests.exceptions.ConnectionError:
-        print('ConnectionError')
         get_status(timestamp_to_request)
 
 get_status(timestamp_to_request)
