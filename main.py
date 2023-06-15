@@ -1,37 +1,40 @@
-from dotenv import load_dotenv
 import os
 import requests
 import telegram
+from dotenv import load_dotenv
+from time import sleep
 
 
-load_dotenv()
+def main():
+    load_dotenv()
+    TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
+    DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
+    TG_CHAT_ID = os.getenv("TG_CHAT_ID")
+    bot = telegram.Bot(token=TG_BOT_TOKEN)
+    url = 'https://dvmn.org/api/long_polling/'
+    payload = {}
+    headers = {
+        'Authorization': f'Token {DEVMAN_TOKEN}'
+    }
 
-TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
-DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
-TG_CHAT_ID = os.getenv("TG_CHAT_ID")
-bot = telegram.Bot(token=TG_BOT_TOKEN)
-url = 'https://dvmn.org/api/long_polling/'
-
-headers = {
-    'Authorization': f'Token {DEVMAN_TOKEN}'
-}
-response = requests.get(url, headers=headers)
-response.raise_for_status()
-timestamp_to_request = response.json()['new_attempts'][0]['timestamp']
-
-def get_status(timestamp_to_request):
-    try:
-        while True:
-            payload = {'timestamp': timestamp_to_request}
-            response = requests.get(url, params=payload, headers=headers, timeout=190)
+    while True:
+        try:
+            response = requests.get(url, params=payload, headers=headers)
             response.raise_for_status()
-            for message in response:
-                if response.json()['status'] == 'timeout':
-                    timestamp_to_request = response.json()['timestamp_to_request']
-                elif response.json()['status'] == 'found':
-                    lesson_title = response.json()['new_attempts'][0]['lesson_title']
-                    is_negative = response.json()['new_attempts'][0]['is_negative']
-                    lesson_url = response.json()['new_attempts'][0]['lesson_url']
+            reviews = response.json()
+
+            if reviews['status'] == 'timeout':
+                payload = {
+                    'timestamp': reviews['timestamp_to_request']
+                }
+            if reviews['status'] == 'found':
+                payload = {
+                    'timestamp': reviews['last_attempt_timestamp']
+                }
+                for attempt in reviews['new_attempts']:
+                    lesson_title = attempt['lesson_title']
+                    is_negative = attempt['is_negative']
+                    lesson_url = attempt['lesson_url']
                     if is_negative:
                         bot.send_message(
                             chat_id=TG_CHAT_ID,
@@ -50,10 +53,13 @@ def get_status(timestamp_to_request):
                             {lesson_url}
                             '''
                         )
-                    timestamp_to_request = response.json()['last_attempt_timestamp']
-    except requests.exceptions.ReadTimeout:
-        get_status(timestamp_to_request)
-    except requests.exceptions.ConnectionError:
-        get_status(timestamp_to_request)
+        except requests.exceptions.ReadTimeout:
+            print('Нет подключения к серверу')
+            continue
+        except requests.exceptions.ConnectionError:
+            print('Ошибка подключения к серверу')
+            sleep(30)
 
-get_status(timestamp_to_request)
+
+if __name__ == '__main__':
+    main()
