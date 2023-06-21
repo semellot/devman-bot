@@ -8,6 +8,7 @@ from time import sleep
 
 def main():
     load_dotenv()
+    logging.basicConfig(level=logging.DEBUG)
     TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
     DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
     TG_CHAT_ID = os.getenv("TG_CHAT_ID")
