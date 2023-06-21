@@ -9,6 +9,7 @@ from time import sleep
 def main():
     load_dotenv()
     logging.basicConfig(level=logging.DEBUG)
+    logging.info('Бот запущен')
     TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
     DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
     TG_CHAT_ID = os.getenv("TG_CHAT_ID")
@@ -23,7 +24,6 @@ def main():
         try:
             response = requests.get(url, params=payload, headers=headers)
             response.raise_for_status()
-            logging.info('Бот запущен')
             reviews = response.json()
 
             if reviews['status'] == 'timeout':
