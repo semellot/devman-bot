@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 import telegram
@@ -21,6 +22,7 @@ def main():
         try:
             response = requests.get(url, params=payload, headers=headers)
             response.raise_for_status()
+            logging.info('Бот запущен')
             reviews = response.json()
 
             if reviews['status'] == 'timeout':
@@ -54,10 +56,10 @@ def main():
                             '''
                         )
         except requests.exceptions.ReadTimeout:
-            print('Нет подключения к серверу')
+            logging.error('Нет подключения к серверу')
             continue
         except requests.exceptions.ConnectionError:
-            print('Ошибка подключения к серверу')
+            logging.error('Ошибка подключения к серверу')
             sleep(30)
 
 
