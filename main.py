@@ -5,15 +5,28 @@ import telegram
 from dotenv import load_dotenv
 from time import sleep
 
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_token, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = telegram.Bot(token=tg_token)
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
+
 
 def main():
     load_dotenv()
-    logging.basicConfig(level=logging.DEBUG)
-    logging.info('Бот запущен')
     TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
     DEVMAN_TOKEN = os.getenv("DEVMAN_TOKEN")
     TG_CHAT_ID = os.getenv("TG_CHAT_ID")
+    logger = logging.getLogger('Logger')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(TelegramLogsHandler(TG_BOT_TOKEN, TG_CHAT_ID))
     bot = telegram.Bot(token=TG_BOT_TOKEN)
+    logger.info('Бот запущен')
     url = 'https://dvmn.org/api/long_polling/'
     payload = {}
     headers = {
@@ -57,10 +70,10 @@ def main():
                             '''
                         )
         except requests.exceptions.ReadTimeout:
-            logging.error('Нет подключения к серверу')
+            logger.warning('Нет подключения к серверу')
             continue
         except requests.exceptions.ConnectionError:
-            logging.error('Ошибка подключения к серверу')
+            logger.warning('Ошибка подключения к серверу')
             sleep(30)
 
 
