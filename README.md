@@ -30,3 +30,22 @@ DEVMAN_TOKEN=*** (персональный токен Devman)
 ```
 % python main.py
 ```
+
+## Пример запуска скрипта c помощью Docker
+
+Создайте образ:
+```
+docker build -t devman_bot .
+```
+
+Создайте в каталоге проекта файл с названием `.env` со следующим наполнением:
+```
+TG_BOT_TOKEN=*** (токен, который дал Отец ботов для доступа к HTTP API)
+TG_CHAT_ID=*** (ID пользователя Telegram)
+DEVMAN_TOKEN=*** (персональный токен Devman)
+```
+
+Создайте контейнер этого образа:
+```
+docker run -p 8000:8000 --env-file .env devman_bot
+```
